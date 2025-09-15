@@ -5,7 +5,8 @@
 // Added a method to the animal class to do a special action and overide that method in each subclass for encapsulation purposes.
 // Created a simple factory for animals
 // Replaced the insance of if chain with a for loop
-
+// Better encapsulated the kennel class
+// Removed the hardcoded numbers from within the calculateTax method and replaced them with fields
 
 import java.util.*;
 import java.time.*;
@@ -45,14 +46,24 @@ public class Main {
         printReport(Arrays.asList("OK", "WARN", "TODO"));
 
         Kennel k = new Kennel();
-        k.dogs.add(new Dog("Buddy"));
+        k.addDog(new Dog("Buddy"));
     }
 
-    private static double calculateTax(double gross, String country) {
-        if ("UK".equals(country)) return gross * 0.2;
-        if ("FR".equals(country)) return gross * 0.19 + 3;
-        return gross * 0.15;
-    }
+    private static final double UK_RATE = 0.20;
+    private static final double FR_RATE = 0.19;
+    private static final double DEFAULT_RATE = 0.15;
+    private static final double FR_SURCHARGE = 3.0;
+
+
+    private static final String COUNTRY_UK = "UK";
+    private static final String COUNTRY_FR = "FR";
+
+   private static double calculateTax(double gross, String country) {
+    if (COUNTRY_UK.equals(country)) return gross * UK_RATE;
+    if (COUNTRY_FR.equals(country)) return gross * FR_RATE + FR_SURCHARGE;
+    return gross * DEFAULT_RATE;
+}
+
 
     private static void printReport(List<String> lines) {
         System.out.println("---- REPORT ----");
@@ -66,16 +77,6 @@ public class Main {
         System.out.println("Saving to " + path + " ...");
     }
 
-    private static String helper(String x) {
-        if (x == null) return "null";
-        String y = x.trim().toUpperCase();
-        if (y.length() > 2) return y.substring(0, 2);
-        return y;
-    }
-
-
-
-    
 }
 enum Species {
      DOG, CAT, RABBIT, UNKNOWN
@@ -142,7 +143,14 @@ class Rabbit extends Animal {
     @Override public void doSpecialAction() { System.out.println(getName() + " nibbles something?"); }
 }
 
-class Kennel {
-    public List<Dog> dogs = new ArrayList<>();
-    public String address = "Somewhere";
+final class Kennel {
+    private final java.util.List<Dog> dogs = new java.util.ArrayList<Dog>();
+    private String address = "Somewhere";
+
+    void addDog(Dog d) { dogs.add(d); }
+    java.util.List<Dog> getDogs() {
+        return java.util.Collections.unmodifiableList(dogs);
+    }
+    String getAddress() { return address; }
+    void setAddress(String a) { this.address = a; }
 }
